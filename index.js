@@ -1,9 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
-require('dotenv').config()
-const app= express();
 var jwt = require('jsonwebtoken');
+const app= express();
 const port = process.env.PORT || 5000
 
 //set Middlewar
@@ -36,17 +36,26 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-
-async function run() {
+const dbConnect = async () => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
+    console.log(" Database Connected Successfully✅ ");
+
+  } catch (error) {
+    console.log(error.name, error.message);
+  }
+}
+dbConnect()
 
     const instructorsCollection = client.db('academyDb').collection('instructors')
     const clientCollection = client.db('academyDb').collection('clientSay')
     const classCollection = client.db('academyDb').collection('class')
     const usersCollection = client.db('academyDb').collection('users')
 
+
+    app.get('/', (req, res) => {
+      res.send('smash server running');
+  })
     //JWT
     app.post('/jwt', (req, res) => {
       const user = req.body;
@@ -136,21 +145,11 @@ async function run() {
       res.send(result); 
     })
 
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
-  }
-}
-run().catch(console.dir);
 
 
 
-app.get('/', (req, res) => {
-    res.send('smash server running');
-})
+
+
 
 app.listen(port, () => {
     console.log(`the smash server is running on ${port}`)
