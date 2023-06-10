@@ -3,12 +3,28 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
 const app= express();
+var jwt = require('jsonwebtoken');
 const port = process.env.PORT || 5000
 
 //set Middlewar
 app.use(cors());
 app.use(express.json());
 
+
+const verifyJwt = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if(!authorization){
+    return res.status(401).send({error: true, message: 'unauthorized access'})
+  }
+  const token = authorization.split(' ')[1];
+  jwt.verify(token, process.env.SECRET_TOKEN, (err, decoded) => {
+    if(err){
+      return res.status(401).send({error: true, message: 'unathorized access'})
+    }
+    req.decoded = decoded;
+    next();
+  })
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.5a8lj4m.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -31,6 +47,15 @@ async function run() {
     const classCollection = client.db('academyDb').collection('class')
     const usersCollection = client.db('academyDb').collection('users')
 
+    //JWT
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.SECRET_TOKEN, {expiresIn: 
+        '1h'})
+        res.send({token});
+    })
+
+
     app.get('/instructor', async(req, res) =>  {
         const cursor = instructorsCollection.find();
         const result = await cursor.sort({numberOfStudents : 1}).toArray();
@@ -50,10 +75,14 @@ async function run() {
       res.send(result);
     })
 
-    app.get('/class', async (req, res) => {
+    app.get('/class', verifyJwt, async (req, res) => {
       const email = req.query.email;
       if(!email){
         res.send([]);
+      }
+      const decodedEmail = req.decoded.email;
+      if(email !== decodedEmail){
+        return res.status(401).send({error: true, message: 'forbidden  access'})
       }
       const query = {email: email}
       const result = await classCollection.find(query).toArray();
