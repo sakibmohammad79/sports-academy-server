@@ -65,6 +65,17 @@ dbConnect()
     })
 
 
+    //user verfyJwt before using verifyadmin
+    const verifyadmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = {email: email}
+      const user = await usersCollection.findOne(query);
+      if(user?.role !== 'admin') {
+        return res.status(403).send({error: true, message: 'forbidden access admin'})
+      }
+      next();
+    }
+
     app.get('/instructor', async(req, res) =>  {
         const cursor = instructorsCollection.find();
         const result = await cursor.sort({numberOfStudents : 1}).toArray();
@@ -119,8 +130,22 @@ dbConnect()
     } )
 
     //user get
-    app.get('/users', async (req, res)=> {
+    app.get('/users', verifyJwt, verifyadmin, async (req, res)=> {
       const result = await usersCollection.find().toArray();
+      res.send(result);
+    })
+
+    //check admin
+    app.get('/users/admin/:email', verifyJwt, async (req, res) => {
+      const email = req.params.email;
+
+      if(req.decoded.email !== email){
+        res.send({admin: false})
+      }
+
+      const query = {email: email}
+      const user = await usersCollection.findOne(query);
+      const result = {admin: user?.role === 'admin'}
       res.send(result);
     })
 
