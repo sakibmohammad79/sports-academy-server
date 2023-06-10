@@ -133,7 +133,7 @@ dbConnect()
           role: 'admin'
         }
       }
-      res.result = await usersCollection.updateOne(filter, updateDoc)
+      const result = await usersCollection.updateOne(filter, updateDoc)
       res.send(result);
     })
 
@@ -144,9 +144,6 @@ dbConnect()
       const result = await usersCollection.deleteOne(query);
       res.send(result); 
     })
-
-
-
 
 
 
