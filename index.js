@@ -54,6 +54,8 @@ dbConnect()
     const classCollection = client.db('academyDb').collection('class')
     const usersCollection = client.db('academyDb').collection('users')
     const instructorClassCollection = client.db('academyDb').collection('instructorClass')
+    const paymentCollection = client.db('academyDb').collection('payments')
+    
 
 
     app.get('/', (req, res) => {
@@ -86,11 +88,21 @@ dbConnect()
     })
 
 
+    app.get('/instructorclass/:email', async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = { email: email };
+      const result = await instructorClassCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.get('/instructorclass', async(req, res) =>  {
         const result = await instructorClassCollection.find().toArray()
         res.send(result);
     })
 
+
+    
 
     //add class
     app.post('/instructorclass', verifyJwt,  async(req, res) => {
@@ -238,9 +250,16 @@ dbConnect()
       const insertResult = await paymentCollection.insertOne(payment);
       
       const query = {_id: {$in: payment.cartItems.map(id => new ObjectId(id))}}
-      const deleteResult = await classCollection.deleteMany(query)
+      const deleteResult = await classCollection.deleteOne(query)
 
       res.send({insertResult, deleteResult});
+    })
+
+    app.get('/payments/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      const result = await paymentCollection.find(query).toArray();
+      res.send(result);
     })
 
 app.listen(port, () => {
