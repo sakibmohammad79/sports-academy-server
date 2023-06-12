@@ -263,5 +263,5 @@ dbConnect()
     })
 
 app.listen(port, () => {
-    console.log(`the smash server is running on ${port}`)
+    console.log(`the sports server is running on ${port}`)
 })
