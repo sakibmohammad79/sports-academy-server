@@ -2,14 +2,19 @@ require('dotenv').config()
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_KEY);
 const express = require('express')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const cors = require('cors');
 var jwt = require('jsonwebtoken');
+const cors = require('cors');
 const app= express();
 const port = process.env.PORT || 5000
 
 
 //set Middlewar
-app.use(cors());
+const corsConfig = {
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE']
+  }
+  app.use(cors(corsConfig))
 app.use(express.json());
 
 
@@ -88,20 +93,19 @@ dbConnect()
     })
 
 
-    app.get('/instructorclass/:email', async (req, res) => {
-      const email = req.params.email;
-      console.log(email);
-      const query = { email: email };
-      const result = await instructorClassCollection.find(query).toArray();
-      res.send(result);
-    });
 
     app.get('/instructorclass', async(req, res) =>  {
         const result = await instructorClassCollection.find().toArray()
         res.send(result);
     })
 
-
+    app.get('/instructorclass/:email', async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = { email: email }
+      const result = await instructorClassCollection.find(query).toArray();
+      res.send(result);
+    })
     
 
     //add class
