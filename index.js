@@ -53,6 +53,7 @@ dbConnect()
     const clientCollection = client.db('academyDb').collection('clientSay')
     const classCollection = client.db('academyDb').collection('class')
     const usersCollection = client.db('academyDb').collection('users')
+    const instructorClassCollection = client.db('academyDb').collection('instructorClass')
 
 
     app.get('/', (req, res) => {
@@ -85,10 +86,16 @@ dbConnect()
     })
 
 
+    app.get('/instructorclass', async(req, res) =>  {
+        const result = await instructorClassCollection.find().toArray()
+        res.send(result);
+    })
+
+
     //add class
-    app.post('/instructor', verifyJwt,  async(req, res) => {
-      const newClas = req.body;
-      const result = await instructorsCollection.insertOne(newClas);
+    app.post('/instructorclass', verifyJwt,  async(req, res) => {
+      const newClass = req.body;
+      const result = await instructorClassCollection.insertOne(newClass);
       res.send(result);
     })
 
