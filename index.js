@@ -60,6 +60,7 @@ dbConnect()
     const usersCollection = client.db('academyDb').collection('users')
     const instructorClassCollection = client.db('academyDb').collection('instructorClass')
     const paymentCollection = client.db('academyDb').collection('payments')
+    const enrollClassCollection = client.db('academyDb').collection('enrollClass')
     
 
 
@@ -265,6 +266,12 @@ dbConnect()
       const email = req.params.email;
       const query = { email: email }
       const result = await paymentCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.post('/enrollclass', async (req, res) => {
+      const enrollClass = req.body;
+      const result = await enrollClassCollection.insertOne(enrollClass);
       res.send(result);
     })
 
