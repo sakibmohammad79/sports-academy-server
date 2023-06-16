@@ -249,11 +249,13 @@ dbConnect()
     });
 
     //payment related api
-    app.post('/payments', verifyJwt, async(req, res) =>  {
+    app.post('/payments/:id', verifyJwt, async(req, res) =>  {
       const payment = req.body;
+      const id = req.params.id;
       const insertResult = await paymentCollection.insertOne(payment);
       
-      const query = {_id: {$in: payment.cartItems.map(id => new ObjectId(id))}}
+      // const query = {_id: {$in: payment.cartItems.map(id => new ObjectId(id))}}
+      const query = {_id: new ObjectId(id)}
       const deleteResult = await classCollection.deleteOne(query)
 
       res.send({insertResult, deleteResult});
