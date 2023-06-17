@@ -275,6 +275,14 @@ dbConnect()
       res.send(result);
     })
 
+    app.get('/enrollclass/:email', async (req, res) => {
+      const email = req.params.email;
+      console.log(email);
+      const query = { email: email };
+      const result = await enrollClassCollection.find(query).toArray();
+      res.send(result);
+    })
+
 app.listen(port, () => {
     console.log(`the sports server is running on ${port}`)
 })
